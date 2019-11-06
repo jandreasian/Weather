@@ -7,7 +7,9 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
-import retrofit2.http.Query
+import retrofit2.http.Path
+
+
 
 private const val BASE_URL = "https://api.darksky.net/forecast/" + BuildConfig.ApiKey + "/"
 
@@ -23,8 +25,8 @@ private val retrofit = Retrofit.Builder()
     .build()
 
 interface DarkSkyApiService {
-    @GET("37.8267,-122.4233")
-    fun getWeather():
+    @GET("{latlong}")
+    fun getWeather(@Path(value = "latlong") latlong: String):
             Call<WeatherProperty>
 }
 

@@ -10,7 +10,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class OverviewViewModel : ViewModel() {
+class OverviewViewModel(latlong: String) : ViewModel() {
 
     // The internal MutableLiveData String that stores the status of the most recent request
     private val _response = MutableLiveData<String>()
@@ -30,7 +30,7 @@ class OverviewViewModel : ViewModel() {
      * Sets the value of the status LiveData to the Mars API status.
      */
     private fun getWeather() {
-        DarkSkyApi.retrofitService.getWeather().enqueue(object: Callback<WeatherProperty> {
+        DarkSkyApi.retrofitService.getWeather("37.8267,-155.4233").enqueue(object: Callback<WeatherProperty> {
             override fun onFailure(call: Call<WeatherProperty>, t: Throwable) {
                 _response.value = "Failure: " + t.message
                 Log.e("OverViewModel ", t.message);
