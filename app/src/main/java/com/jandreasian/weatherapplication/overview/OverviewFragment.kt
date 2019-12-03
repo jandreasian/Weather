@@ -2,7 +2,6 @@ package com.jandreasian.weatherapplication.overview
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
@@ -10,6 +9,7 @@ import android.util.Log
 import android.view.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.jandreasian.weatherapplication.R
@@ -24,13 +24,12 @@ class OverviewFragment : Fragment() {
 
     private lateinit var viewModel: OverviewViewModel
 
+    private lateinit var binding: OverviewFragmentBinding
+
     private var isGPSEnabled = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-
-        viewModel = ViewModelProviders.of(this)
-            .get(OverviewViewModel::class.java)
 
         GpsUtils(requireContext()).turnGPSOn(object : GpsUtils.OnGpsListener {
 
@@ -39,15 +38,23 @@ class OverviewFragment : Fragment() {
             }
         })
 
-        invokeLocationAction()
+        binding = DataBindingUtil.inflate(
+            inflater,
+            R.layout.overview_fragment,
+            container,
+            false
+        )
 
-        val binding = OverviewFragmentBinding.inflate(inflater)
+        viewModel = ViewModelProviders.of(this)
+            .get(OverviewViewModel::class.java)
 
         // Allows Data Binding to Observe LiveData with the lifecycle of this Fragment
         binding.setLifecycleOwner(this)
 
         // Giving the binding access to the OverviewViewModel
         binding.viewModel = viewModel
+
+        invokeLocationAction()
 
         return binding.root
     }
@@ -83,11 +90,9 @@ class OverviewFragment : Fragment() {
 
     private fun invokeLocationAction() {
         when {
-            !isGPSEnabled -> latLong.text = getString(com.jandreasian.weatherapplication.R.string.enable_gps)
 
             isPermissionsGranted() -> startLocationUpdate()
 
-            shouldShowRequestPermissionRationale() -> latLong.text = getString(com.jandreasian.weatherapplication.R.string.permission_request)
 
             else -> ActivityCompat.requestPermissions(
                 requireActivity(),
@@ -99,8 +104,7 @@ class OverviewFragment : Fragment() {
 
     private fun startLocationUpdate() {
         viewModel.getLocationData().observe(this, Observer {
-            latLong.text =  getString(R.string.latLong, it.longitude, it.latitude)
-            Log.d("MainActivity", getString(R.string.latLong, it.longitude, it.latitude))
+            Log.d("OverviewFragment", getString(R.string.latLong, it.longitude, it.latitude))
         })
 
     }

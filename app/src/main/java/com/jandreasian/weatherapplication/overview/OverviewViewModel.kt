@@ -17,7 +17,6 @@ import retrofit2.Response
 class OverviewViewModel(application: Application) : AndroidViewModel(application) {
 
     // The internal MutableLiveData String that stores the status of the most recent request
-    private val _response = MutableLiveData<String>()
 
     private val locationData = LocationService(application)
 
@@ -25,9 +24,14 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
 
     private lateinit var latLong: String
 
-    // The external immutable LiveData for the request status String
-    val response: LiveData<String>
-        get() = _response
+    private val _summary = MutableLiveData<String>()
+    val summary: LiveData<String>
+        get() = _summary
+
+    private val _temp = MutableLiveData<String>()
+    val temp: LiveData<String>
+        get() = _temp
+
 
     init {
         getWeather()
@@ -44,12 +48,12 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
                 latLong = location.latitude.toString() + ", " + location.longitude.toString()
                 DarkSkyApi.retrofitService.getWeather(latLong).enqueue(object: Callback<WeatherProperty> {
                     override fun onFailure(call: Call<WeatherProperty>, t: Throwable) {
-                        _response.value = "Failure: " + t.message
-                        Log.e("OverViewModel ", t.message);
+                        Log.e("OverViewModel: ", t.message);
                     }
 
                     override fun onResponse(call: Call<WeatherProperty>, response: Response<WeatherProperty>) {
-                        _response.value = response.body()?.latitude + " " + response.body()?.longitude + " " + response.body()?.timezone;
+                        _summary.value = response.body()?.currently?.summary
+                        _temp.value = response.body()?.currently?.temperature.toString()
                         Log.d("OverViewModelLatLong:", latLong);
                     }
                 })
