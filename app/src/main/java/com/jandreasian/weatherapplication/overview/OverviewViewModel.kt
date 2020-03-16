@@ -14,8 +14,10 @@ import retrofit2.Response
 import android.location.Geocoder
 import com.jandreasian.weatherapplication.R
 import com.jandreasian.weatherapplication.network.*
-import java.util.*
 import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.Date
+
 
 
 class OverviewViewModel(application: Application) : AndroidViewModel(application) {
@@ -30,8 +32,10 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
 
     private lateinit var latLong: String
 
-    private val _weather = MutableLiveData<WeatherProperty>()
-    val weather: LiveData<WeatherProperty>
+    var isLoading = MutableLiveData<Boolean>()
+
+    private val _weather = MutableLiveData<Weather>()
+    val weather: LiveData<Weather>
         get() = _weather
 
     private val _address = MutableLiveData<String>()
@@ -54,22 +58,22 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
                 val cityName = addresses[0].locality
                 val stateName = addresses[0].adminArea
                 latLong = location.latitude.toString() + ", " + location.longitude.toString()
-                _address.value = cityName + ", " + stateName
-                DarkSkyApi.retrofitService.getWeather(latLong).enqueue(object: Callback<WeatherProperty> {
-                    override fun onFailure(call: Call<WeatherProperty>, t: Throwable) {
+                DarkSkyApi.retrofitService.getWeather(latLong).enqueue(object: Callback<Weather> {
+                    override fun onFailure(call: Call<Weather>, t: Throwable) {
                         Log.e("OverViewModel: ", t.message);
                     }
 
-                    override fun onResponse(call: Call<WeatherProperty>, response: Response<WeatherProperty>) {
+                    override fun onResponse(call: Call<Weather>, response: Response<Weather>) {
+                        isLoading.value = true
                         _weather.value = response.body()
-                        Log.d("OverViewModelLatLong:", latLong);
+                        _address.value = cityName + ", " + stateName
                     }
                 })
             }
     }
 
     val displayTemperature = Transformations.map(weather) {
-        application.applicationContext.getString(com.jandreasian.weatherapplication.R.string.display_temp, it.currently.temperature)
+        application.applicationContext.getString(R.string.display_temp, it.currently.temperature)
     }
 
     val iconImg = Transformations.map(weather) {

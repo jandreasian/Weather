@@ -53,6 +53,17 @@ class OverviewFragment : Fragment() {
         // Giving the binding access to the OverviewViewModel
         binding.viewModel = viewModel
 
+        binding.animationView.playAnimation()
+
+        viewModel.isLoading.observe(this, Observer {
+            if(it != null){
+                if(it) {
+                    binding.animationView.cancelAnimation();
+                    binding.animationView.setVisibility(View.GONE);
+                }
+            }
+        })
+
         invokeLocationAction()
 
         setHasOptionsMenu(true)
