@@ -2,7 +2,9 @@
 
 buildscript {
     ext {
+        version_androidx = "2.2.0"
         version_kotlin = "1.3.50"
+        version_lottie = "2.8.0"
         version_moshi = "1.8.0"
         version_retrofit = "2.6.2"
         version_google_play_services = "17.0.0"
@@ -11,6 +13,7 @@ buildscript {
     repositories {
         google()
         jcenter()
+        mavenCentral()
         
     }
     dependencies {
@@ -25,7 +28,7 @@ allprojects {
     repositories {
         google()
         jcenter()
-        
+        mavenCentral()
     }
 }
 

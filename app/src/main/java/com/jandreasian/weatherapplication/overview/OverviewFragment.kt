@@ -15,7 +15,6 @@ import androidx.lifecycle.Observer
 import com.jandreasian.weatherapplication.R
 import com.jandreasian.weatherapplication.databinding.OverviewFragmentBinding
 import com.jandreasian.weatherapplication.network.GpsUtils
-import kotlinx.android.synthetic.main.overview_fragment.*
 
 const val LOCATION_REQUEST = 100
 const val GPS_REQUEST = 101
@@ -54,9 +53,37 @@ class OverviewFragment : Fragment() {
         // Giving the binding access to the OverviewViewModel
         binding.viewModel = viewModel
 
+        binding.animationView.playAnimation()
+
+        viewModel.isLoading.observe(this, Observer {
+            if(it != null){
+                if(it) {
+                    binding.animationView.cancelAnimation();
+                    binding.animationView.setVisibility(View.GONE);
+                }
+            }
+        })
+
         invokeLocationAction()
 
+        setHasOptionsMenu(true)
+
         return binding.root
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id = item.getItemId()
+
+        if (id == R.id.action_refresh) {
+            viewModel.getWeather()
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     private fun isPermissionsGranted() =
